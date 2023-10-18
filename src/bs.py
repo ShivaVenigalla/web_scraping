@@ -26,7 +26,7 @@ def scrape_root_url(start_url, dir_name):
         for link in linksFound:
             if link.has_attr("href"):
                 href = link["href"]
-                if href[0] == "#" and len(href) > 1:
+                if href[0] == "#" and len(href) > 1 and '#' not in linkToVisit:
                     new_link = linkToVisit + href
                     if new_link not in touched_urls:
                         to_visit.append(new_link)
@@ -43,6 +43,8 @@ def scrape_root_url(start_url, dir_name):
                         touched_urls.add(new_link)
 
         end_point = linkToVisit.removeprefix(start_url)
+        # with open('somefile.txt', 'a') as the_file:
+        #     the_file.write(linkToVisit + '\n')
 
         pdf_name = os.path.join(dir_name, url_to_str(end_point) + ".pdf")
         pdfkit.from_url(linkToVisit, pdf_name)

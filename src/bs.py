@@ -18,7 +18,11 @@ def scrape_root_url(start_url, dir_name):
         print(linkToVisit, '==== More to go : ' + str(len(to_visit)))
         response = requests.get(linkToVisit)
         source = BeautifulSoup(response.text, "html.parser")
-        linksFound = source.find_all("div", {"class": "d-lg-flex"})[1].find_all('a')
+        divsFound = source.find_all("div", {"class": "d-lg-flex"})
+        if len(divsFound) < 2:
+            continue
+        div = divsFound[1]
+        linksFound = div.find_all('a')
         for link in linksFound:
             if link.has_attr("href"):
                 href = link["href"]

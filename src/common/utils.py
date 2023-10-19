@@ -94,7 +94,7 @@ def create_directory(directory):
 
 def url_to_str(url):
     # Define a regular expression pattern to match special characters
-    pattern = r"[\.\/\?!@#\$%^&*]"
+    pattern = r"[\.\/\?!@\$%^&*]"
 
     # Replace special characters with underscores
     url = url.removeprefix("https://")

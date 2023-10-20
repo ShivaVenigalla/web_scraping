@@ -56,12 +56,6 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
             for link in linksFound:
                 if link.has_attr("href"):
                     href = link["href"]
-                    if href[0] == "#" and len(href) > 1 and "#" not in linkToVisit:
-                        new_link = linkToVisit + href
-                        if new_link not in touched_urls:
-                            update_toVisit_n_touched_lists(
-                                to_visit, touched_urls, new_link
-                            )
                     if href[0] == "?" and len(href) > 1:
                         new_link = linkToVisit + href
                         if new_link not in touched_urls:

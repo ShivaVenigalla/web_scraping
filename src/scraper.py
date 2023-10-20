@@ -15,7 +15,7 @@ def main():
     # Define the optional boolean argument to start the app from reading urls from files
     parser.add_argument(
         "--recovery-mode",
-        action="store_false",
+        action="store_true",
         help="Restart the app using the urls dumped in the previous run",
     )
 
@@ -23,7 +23,7 @@ def main():
     # This will help us to prepare the list of all the urls needs to be dumped.
     parser.add_argument(
         "--dry-run",
-        action="store_false",
+        action="store_true",
         help="Rrun the app without dumping urls as pdfs",
     )
 

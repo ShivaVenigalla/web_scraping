@@ -3,6 +3,7 @@ import sys
 import requests
 import pdfkit
 from bs4 import BeautifulSoup
+from  urllib.parse import urljoin
 from common.utils import url_to_str
 
 
@@ -57,13 +58,13 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                 if link.has_attr("href"):
                     href = link["href"]
                     if href[0] == "?" and len(href) > 1:
-                        new_link = linkToVisit + href
+                        new_link = urljoin(linkToVisit, href)
                         if new_link not in touched_urls:
                             update_toVisit_n_touched_lists(
                                 to_visit, touched_urls, new_link
                             )
                     elif href[0] == "/":
-                        new_link = start_url + href
+                        new_link = urljoin(start_url, href)
                         if new_link not in touched_urls:
                             update_toVisit_n_touched_lists(
                                 to_visit, touched_urls, new_link

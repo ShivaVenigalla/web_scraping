@@ -3,6 +3,7 @@ import re
 import sys
 import logging
 import configparser
+from datetime import datetime
 
 
 # Get the parent directory of the current script
@@ -101,3 +102,11 @@ def url_to_str(url):
     directory_name = re.sub(pattern, "_", url)
 
     return directory_name
+
+
+def dir_bacup_helper(directory):
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    # Rename the existing directory
+    new_directory_name = f"{directory}_{timestamp}"
+    os.rename(directory, new_directory_name)

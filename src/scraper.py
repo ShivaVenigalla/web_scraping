@@ -1,13 +1,16 @@
 import argparse
 
+from common.utils import get_logger
 from common.utils import url_to_str
 from common.utils import create_directory
 from bs import scrape_root_url
 
+logger = get_logger(__name__)
+
 
 def main():
     # Create an argument parser
-    parser = argparse.ArgumentParser(description="application to scrape the given Web")
+    parser = argparse.ArgumentParser(description="Application to scrape the given URL")
 
     # Define the mandatory URL argument
     parser.add_argument("url", type=str, help="A URL string")
@@ -38,12 +41,12 @@ def main():
     # Use the input arguments in your script
     print(f"URL: {start_url}")
     if recovery_mode:
-        print(
+        logger.info(
             f"Restarting the app by using the urls saved in "
             f"'tovisit.txt' & 'touched_urls.txt' as input"
         )
 
-    print(f"Start url: {start_url}")
+    logger.info(f"Start url: {start_url}")
 
     dir_name = url_to_str(start_url)
     create_directory(dir_name)

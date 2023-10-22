@@ -36,6 +36,7 @@ def persist_iterabale_at(iterable, file_name):
 
 def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
     to_visit = []
+    failed_urls = []
     touched_urls = set()
     save_url_lists = dry_run
 
@@ -58,12 +59,11 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
         to_visit.append(start_url)
         touched_urls.add(start_url)
 
-    visit_url = None
-    try:
-        visited_url_count = 0
-        while to_visit:
-            visit_url = to_visit.pop(0)
+    visited_url_count = 0
+    while to_visit:
+        visit_url = to_visit.pop(0)
 
+        try:
             if visit_url == None:
                 logger.warning(
                     f"A 'None' element has been added to the list of URLs."
@@ -118,14 +118,21 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                 pdf_name = os.path.join(dir_name, url_to_str(end_point) + ".pdf")
                 pdfkit.from_url(visit_url, pdf_name)
             visited_url_count += 1
-    except Exception as e:
-        # Catch the exception and print its message
-        logger.error(f"An exception occurred: {str(e)}")
+        except Exception as e:
+            # Catch the exception and print its message
+            logger.error(f"An exception occurred: {str(e)}")
+            logger.error(
+                f"Skipping this url: {visit_url}\tvisited url: {visited_url_count}"
+            )
 
-        to_visit.append(visit_url)
-        save_url_lists = True
-    finally:
-        if save_url_lists:
-            # Save visited & touched urls.
-            persist_iterabale_at(to_visit, "to_visit.txt")
-            persist_iterabale_at(touched_urls, "touched_urls.txt")
+            failed_urls.append(visit_url)
+            save_url_lists = True
+
+    if save_url_lists:
+        # Save visited & touched urls.
+        persist_iterabale_at(to_visit, "to_visit.txt")
+        persist_iterabale_at(touched_urls, "touched_urls.txt")
+
+    if len(failed_urls):
+        # Save failed urls.
+        persist_iterabale_at(failed_urls, "failed_urls.txt")

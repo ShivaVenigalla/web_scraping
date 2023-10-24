@@ -12,17 +12,23 @@ logger = get_logger(__name__)
 
 def update_toVisit_n_touched_lists(to_visit, touched_urls, new_link):
     if new_link not in touched_urls:
-        to_visit.append(new_link)
-        touched_urls.add(new_link)
+        if new_link.startswith("https://docs.github.com/en"):
+            logger.info(f"Inserted Link : {new_link}")
+            to_visit.append(new_link)
+            touched_urls.add(new_link)
+            with open("vask_links.txt", "a") as file:
+                file.write(new_link + "\n")
+        else:
+            logger.warn(f"Malicious URL:{new_link}")
 
 
 def correct_url_as_useful(url):
     if "#" in url:
         parts = url.split("#")
-        if "?" not in parts[1]:
-            # If there's no '?' after '#', truncate the URL before '#'
-            logger.debug(f"original url:'{url}'\tmodified to:'{parts[0]}'")
-            return parts[0]
+        # if "?" not in parts[1]:
+        #     # If there's no '?' after '#', truncate the URL before '#'
+        logger.debug(f"original url:'{url}'\tmodified to:'{parts[0]}'")
+        return parts[0]
     return url  # Return the original URL if no modification is needed
 
 
@@ -71,18 +77,18 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                 )
                 continue
 
-            logger.debug(
+            logger.info(
                 f"Visiting url:{visit_url},\tTotal urls visited:{visited_url_count}"
                 f"\tTouched urls:{len(touched_urls)}"
                 f"\tLinks to visit: {len(to_visit)}"
             )
 
-            if visited_url_count % 100 == 0:
-                logger.info(
-                    f"url:{visit_url},\tTotal urls visited:{visited_url_count}"
-                    f"\tTouched urls:{len(touched_urls)}"
-                    f"\tLinks to visit: {len(to_visit)}"
-                )
+            # if visited_url_count % 100 == 0:
+            #     logger.info(
+            #         f"url:{visit_url},\tTotal urls visited:{visited_url_count}"
+            #         f"\tTouched urls:{len(touched_urls)}"
+            #         f"\tLinks to visit: {len(to_visit)}"
+            #     )
 
             response = requests.get(visit_url)
             source = BeautifulSoup(response.text, "html.parser")
@@ -102,6 +108,7 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                         new_link = urljoin(visit_url, href)
 
                         modified_url = correct_url_as_useful(new_link)
+                        logger.info(f"{visit_url}\t{href}\t{modified_url}")
                         update_toVisit_n_touched_lists(
                             to_visit, touched_urls, modified_url
                         )
@@ -109,6 +116,7 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                         new_link = urljoin(start_url, href)
 
                         modified_url = correct_url_as_useful(new_link)
+                        logger.info(f"{visit_url}\t{href}\t{modified_url}")
                         update_toVisit_n_touched_lists(
                             to_visit, touched_urls, modified_url
                         )

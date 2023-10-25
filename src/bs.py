@@ -42,12 +42,17 @@ def persist_iterabale_at(iterable, file_name):
 def persist_element_at(element, file_name):
     with open(file_name, "a") as file:
         file.write(element + "\n")
+        
+def dump_url(url, output_dir):
+        response = requests.get(url)
+
+        if not dry_run:
+            save_url_as_pdf(url, response, output_dir)
 
 
-def save_url_as_pdf(start_url, visit_url, response, dir_name):
+def save_url_as_pdf(visit_url, response, dir_name):
     if response.status_code == 200:
-        end_point = visit_url.removeprefix(start_url)
-        endPointHash = string_to_hash(end_point)
+        endPointHash = string_to_hash(visit_url)
         pdf_name = os.path.join(dir_name, endPointHash + ".pdf")
         with open("url_to_pdf_map", "a") as file:
             file.write(f"{endPointHash}\t{visit_url}" + "\n")
@@ -153,7 +158,7 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
                         )
 
             if not dry_run:
-                save_url_as_pdf(start_url, visit_url, response, dir_name)
+                save_url_as_pdf(visit_url, response, dir_name)
             visited_url_count += 1
         except Exception as e:
             # Catch the exception and print its message

@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import logging
+import hashlib
 import configparser
 from datetime import datetime
 
@@ -110,3 +111,9 @@ def dir_bacup_helper(directory):
     # Rename the existing directory
     new_directory_name = f"{directory}_{timestamp}"
     os.rename(directory, new_directory_name)
+
+
+def string_to_hash(input_string):
+    sha1 = hashlib.sha1()
+    sha1.update(input_string.encode("utf-8"))
+    return sha1.hexdigest()

@@ -5,6 +5,7 @@ import pdfkit
 import io
 from bs4 import BeautifulSoup
 from PIL import Image
+from tqdm import tqdm
 from urllib.parse import urljoin
 from common.utils import url_to_str
 from common.utils import get_logger
@@ -42,10 +43,49 @@ def persist_iterabale_at(iterable, file_name):
 def persist_element_at(element, file_name):
     with open(file_name, "a") as file:
         file.write(element + "\n")
-        
+
+
 def dump_url(url, output_dir):
-        response = requests.get(url)
-        save_url_as_pdf(url, response, output_dir)
+    response = requests.get(url)
+    save_url_as_pdf(url, response, output_dir)
+
+
+def dump_urls(urls_to_dump, output_dir):
+    urls = []
+
+    with open(urls_to_dump, "r") as urls_list:
+        urls = urls_list.read().splitlines()
+
+    failed_urls = []
+    empty_lines = 0
+
+    # for url in urls:
+    for index, url in enumerate(tqdm(urls, desc="Processing URLs", unit="URL")):
+        try:
+            if not url or url.strip() == "":
+                logger.warning(f"An empty line among the list of URLs. Skipping it.")
+                empty_lines += 1
+                continue
+
+                logger.debug(
+                    f"Dumping  url: '{url}',\tProcessed urls: {index}"
+                    f"\tTotal urls:{len(urls)}"
+                )
+
+            dump_url(url, output_dir)
+        except Exception as e:
+            # Catch the exception and print its message
+            logger.error(f"Exception: {str(e)} Skipping the url '{url}'")
+
+            failed_urls.append(url)
+            persist_element_at(url, "failed_to_dump.txt")
+
+    if len(failed_urls) > 0:
+        logger.info(
+            f"Total {len(failed_urls)} URL(s) got failed out of {len(urls) - empty_lines} URL(s)"
+        )
+    else:
+        logger.info(f"Successfully dumped all {len(urls) -empty_lines} URL(s)")
 
 
 def save_url_as_pdf(visit_url, response, dir_name):
@@ -94,6 +134,7 @@ def scrape_root_url(start_url, dir_name, recovery_mode=False, dry_run=False):
         touched_urls.add(start_url)
 
     visited_url_count = 0
+
     while to_visit:
         visit_url = to_visit.pop(0)
 

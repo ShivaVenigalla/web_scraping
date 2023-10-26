@@ -4,7 +4,7 @@ import argparse
 from common.utils import get_logger
 from common.utils import url_to_str
 from common.utils import create_directory
-from bs import scrape_root_url, dump_url
+from bs import scrape_root_url, dump_urls
 
 logger = get_logger(__name__)
 
@@ -47,20 +47,13 @@ def main():
     if args.urls_to_dump:
         # If the urls-to-dump argument is used, process it and skip the URL and other options
         urls_to_dump = args.urls_to_dump
-        
-        output_dir = "pdf"  # Change this to the desired output directory
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
-        
+
+        start_url = "https://docs.github.com"
+        dir_name = url_to_str(start_url)  # Change this to the desired output directory
+        create_directory(dir_name)
+
         logger.info(f"Starting downloading urls from '{urls_to_dump}' as pdfs")
-
-        with open(urls_to_dump, "r") as urls_list:
-            urls = urls_list.read().splitlines()
-
-        for url in urls:
-            dump_url(url, output_dir)
-
+        dump_urls(urls_to_dump, dir_name)
         logger.info(f"Finished downloading urls from '{urls_to_dump}' as pdfs")
     else:
         # Access the URL and boolean values
@@ -83,7 +76,10 @@ def main():
 
         logger.info(f"Starting scraping urls from '{start_url}'")
         scrape_root_url(
-            start_url, dir_name, recovery_mode=recovery_mode, dry_run=dry_run
+            start_url,
+            dir_name,
+            recovery_mode=recovery_mode,
+            dry_run=dry_run,
         )
         logger.info(f"Finished scraping urls starting at '{start_url}'")
 

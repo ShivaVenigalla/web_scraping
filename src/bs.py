@@ -45,9 +45,7 @@ def persist_element_at(element, file_name):
         
 def dump_url(url, output_dir):
         response = requests.get(url)
-
-        if not dry_run:
-            save_url_as_pdf(url, response, output_dir)
+        save_url_as_pdf(url, response, output_dir)
 
 
 def save_url_as_pdf(visit_url, response, dir_name):
